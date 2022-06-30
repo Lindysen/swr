@@ -14,6 +14,7 @@ export const subscribeCallback = (
     const index = keyedRevalidators.indexOf(callback)
 
     if (index >= 0) {
+      // 直接覆盖 比 找到它 在删除要快
       // O(1): faster than splice
       keyedRevalidators[index] = keyedRevalidators[keyedRevalidators.length - 1]
       keyedRevalidators.pop()

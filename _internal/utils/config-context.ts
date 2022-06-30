@@ -40,6 +40,7 @@ const SWRConfig: FC<
     : mergeConfigs(parentConfig, config)
 
   // Should not use the inherited provider.
+  // 缓存 provider
   const provider = config && config.provider
 
   // Use a lazy initialized state to create the cache on first access.

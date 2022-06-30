@@ -19,6 +19,7 @@ const revalidateAllKeys = (
   type: RevalidateEvent
 ) => {
   for (const key in revalidators) {
+    // 只执行第一个callback 
     if (revalidators[key][0]) revalidators[key][0](type)
   }
 }
@@ -43,6 +44,7 @@ export const initCache = <Data = any>(
     // new mutate function.
     const EVENT_REVALIDATORS = {}
 
+    // 返回一个函数 并且已经绑定this 以及预设了参数
     const mutate = internalMutate.bind(
       UNDEFINED,
       provider
@@ -75,12 +77,12 @@ export const initCache = <Data = any>(
       if (!SWRGlobalState.has(provider)) {
         // Update the state if it's new, or the provider has been extended.
         SWRGlobalState.set(provider, [
-          EVENT_REVALIDATORS,
-          {},
-          {},
-          {},
-          mutate,
-          setter,
+          EVENT_REVALIDATORS, // 0
+          {}, // 1 MUTATION
+          {}, // 2 FETCH
+          {}, // 3 payload
+          mutate,// 4
+          setter,// 5
           subscribe
         ])
         if (!IS_SERVER) {
@@ -103,6 +105,7 @@ export const initCache = <Data = any>(
           const releaseReconnect = opts.initReconnect(
             setTimeout.bind(
               UNDEFINED,
+              //这个新函数的 this 被指定为 bind() 的第一个参数，而其余参数将作为新函数的参数，供调用时使用。
               revalidateAllKeys.bind(
                 UNDEFINED,
                 EVENT_REVALIDATORS,

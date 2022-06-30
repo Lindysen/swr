@@ -56,6 +56,7 @@ export async function internalMutate<Data>(
 
   // If the second argument is a key filter, return the mutation results for all
   // filtered keys.
+  // 支持批量, 模糊匹配
   if (isFunction(_key)) {
     const keyFilter = _key
     const matchedKeys: Key[] = []
@@ -71,6 +72,7 @@ export async function internalMutate<Data>(
     return Promise.all(matchedKeys.map(mutateByKey))
   }
 
+  // 单独
   return mutateByKey(_key)
 
   async function mutateByKey(_k: Key): Promise<Data | undefined> {
@@ -84,7 +86,7 @@ export async function internalMutate<Data>(
 
     const revalidators = EVENT_REVALIDATORS[key]
     const startRevalidate = () => {
-      if (revalidate) {
+      if (revalidate) {// 一旦完成异步更新，缓存是否重新请求。
         // Invalidate the key by deleting the concurrent request markers so new
         // requests will not be deduped.
         delete FETCH[key]
@@ -156,6 +158,7 @@ export async function internalMutate<Data>(
       } else if (error && hasOptimisticData && rollbackOnError) {
         // Rollback. Always populate the cache in this case but without
         // transforming the data.
+        // 如果远程更新出错，是否进行缓存回滚。
         populateCache = true
         data = committedData
 
@@ -166,6 +169,7 @@ export async function internalMutate<Data>(
 
     // If we should write back the cache after request.
     if (populateCache) {
+      // 远程更新的结果是否写入缓存
       if (!error) {
         // Transform the result into data.
         if (isFunction(populateCache)) {

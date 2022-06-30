@@ -30,5 +30,10 @@ export const middleware: Middleware =
         }
         return fetcher_(...args)
       })
+      // middleware 内部一直都没有去改变  useSWRNext参数 ，
+      // 而是一层层包装了fetcher 函数
     return useSWRNext(key_, fetcher, config)
   }
+
+  // 接收next 函数
+  // 执行函数体 然后继续调用useSWRNext
